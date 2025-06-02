@@ -1,0 +1,7 @@
+{
+    "dbt.deferConfigPerProject": {
+        "aw_project": {
+            "favorState": false
+        }
+    }
+}
