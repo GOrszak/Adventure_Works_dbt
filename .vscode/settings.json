@@ -3,5 +3,17 @@
         "aw_project": {
             "favorState": false
         }
-    }
+    },
+
+      "files.associations": {
+    "**/jaffle_shop/**/*.sql": "jinja-sql",
+    "**/target/**": "",
+    "**/<aw_project>/**/*.yaml": "jinja-yaml",
+    "**/<aw_project>/**/*.yml": "jinja-yaml",
+    "**/<aw_project>/**/docs/**/*.md": "jinja-md"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  }
+  
 }
