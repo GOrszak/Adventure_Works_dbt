@@ -1,0 +1,715 @@
+
+version: 2
+
+models:
+  - name: stg_adventure_works__Address
+    description: >
+      Staging model for the Address dimension from the AdventureWorks database.
+      This model contains street address information for customers, employees, and vendors.
+      It includes core location fields such as street lines, city, postal code, and a reference
+      to the associated state or province. The data is typically used in customer profiling,
+      order fulfillment, and territory assignment workflows.
+    columns:
+      - name: AddressID
+        description: "Unique identifier for each address. Serves as the primary key"
+        data_tests:
+          - unique
+          - not_null
+      - name: AddressLine1
+        description: "The first line of the street address"
+      - name: AddressLine2
+        description: "Second line of the street address (optional)."
+      - name: City
+        description: "Name of the city."
+      - name: StateProvinceID
+        description: "Foreign key to StateProvince table. Unique ID of the state or province."
+        data_tests:
+          - relationships:
+              to: ref('stg_adventure_works__StateProvince')
+              field: StateProvinceID
+      - name: PostalCode
+        description: "Postal or ZIP code."
+
+
+  - name: stg_adventure_works__CountryRegion
+    description: >
+      Staging model for the CountryRegion dimension table from the AdventureWorks database.
+      It includes ISO standard codes and names for countries and regions.
+    columns: 
+      - name: CountryRegionCode
+        description: "Standard code representing the country or region."
+        data_tests: 
+          - unique
+          - not_null
+      - name: Name
+        description: "The full name of the country or region."
+
+
+
+  - name: stg_adventure_works__Customer
+    description: >
+      Staging model for customer data from the AdventureWorks Sales schema. 
+      This table includes customer identifiers and their relationships to person, store, and sales territory entities. 
+      It serves as a foundational component for understanding the type and location of a customer 
+      and linking customer records to associated business entities and transactions.
+    columns:
+      - name: CustomerID
+        description: "Primary key for each customer"
+        data_tests:
+          - unique
+          - not_null
+      - name: PersonID
+        description: >
+          Foreign key to the stg_adventure_works__Person table. Null for customers associated with a store 
+          (i.e., business customers), and populated for individual customers.
+      - name: StoreID
+        description: >
+          Foreign key to the stg_adventure_works__Store table. Identifies the store the customer is associated with. 
+          Null for individual (non-store) customers.
+      - name: TerritoryID
+        description: >
+          Foreign key to the stg_adventure_works__SalesTerritory table. Indicates the geographic sales territory 
+          assigned to the customer.
+      - name: AccountNumber
+        description: >
+          Unique customer account number, prefixed with 'AW' and padded with leading zeros. 
+          Used by the accounting system to reference the customer.
+
+
+
+  - name: stg_adventure_works__EmailAddress
+    description: >
+      Staging model for email address information from the AdventureWorks Person schema.
+      Each record links an individual (via BusinessEntityID) to a specific email address.
+      Email addresses are used for communication with employees, vendors, or customers,
+      and are typically unique per person.
+    columns:
+      - name: BusinessEntityID
+        description: >
+          Foreign key referencing the Person table. 
+          Uniquely identifies the individual associated with the email address.
+        data_tests:
+          - unique
+          - not_null
+      - name: EmailAddressID 
+        description: >
+          Serves as a primary key for the email record.
+        data_tests:
+          - unique
+          - not_null
+      - name: EmailAddress
+        description: "The actual email address of the individual."
+        tests:
+          - email_ends_with_adventure_works
+
+
+
+  - name: stg_adventure_works__Employee
+    description:  >
+      Staging table for employee data, including job title, hire details, organizational level, and leave balances.
+    columns:
+      - name: BusinessEntityID
+        description: "Unique ID for the employee. Primary key."
+        data_tests:
+          - unique
+          - not_null
+      - name: ParentBusinessEntityID
+        description: "Manager's BusinessEntityID in the organizational hierarchy."
+        data_tests:
+          - not_null
+      - name: LoginID
+        description: "Employee's system login name."
+      - name: OrganizationLevel
+        description: "Depth in the company hierarchy."
+      - name: BirthDate
+        description: "Date of birth."
+      - name: MaritalStatus
+        description: "Marital status: M = Married, S = Single."
+      - name: Gender
+        description: "Gender: M = Male, F = Female."
+      - name: HireDate
+        description: "Date the employee was hired."
+      - name: SalariedFlag
+        description: "1 = Salaried, 0 = Hourly."
+      - name: VacationHours
+        description: "Available vacation hours."
+      - name: SickLeaveHours
+        description: "Available sick leave hours."
+      - name: JobTitle
+        description: "Employee's job title."
+  
+
+
+  - name: stg_adventure_works__Person
+    description: >
+     Staging table for person data including employees, customers, and contacts.
+    columns: 
+      - name: BusinessEntityID
+        description: "Unique identifier for the person. Primary key."
+        data_tests:
+          - unique
+          - not_null
+      - name: PersonType
+        description: >
+          Person classification: SC = Store Contact, IN = Individual customer,
+          SP = Sales person, EM = Employee, VC = Vendor contact, GC = General contact.
+      - name: FullName
+        description: "Full name of the person (FirstName + LastName)."
+
+
+
+  - name: stg_adventure_works__Product
+    description: "Staging table for products sold or used in manufacturing."
+    columns:
+      - name: ProductID
+        description: "Primary key for product records."
+        data_tests:
+          - unique
+          - not_null
+      - name: ProductName
+        description: "Name of the product."
+        data_tests:
+          - unique
+          - not_null
+      - name: ProductNumber
+        description: "Unique product identification number."
+        data_tests:
+          - unique
+          - not_null 
+      - name: MakeFlag
+        description: "1 = Manufactured in-house, 0 = Purchased."
+      - name: FinishedGoodsFlag
+        description: "1 = Salable item, 0 = Not salable."
+      - name: Color
+        description: "Color of the product."
+      - name: SafetyStockLevel
+        description: "Minimum inventory to maintain."
+      - name: ReorderPoint
+        description: "Inventory level that triggers reordering."
+      - name: StandardCost
+        description: "Standard cost of the product."
+      - name: ListPrice
+        description: "Selling price of the product."
+      - name: SellStartDate
+        description: "Date the product became available."
+      - name: SellEndDate
+        description: "Date the product stopped being available."
+      - name: DiscontinuedDate
+        description: "Date the product was discontinued."
+      - name: ProductSubcategoryID
+        description: "Foreign key to ProductSubCategory."
+
+
+
+  - name: stg_adventure_works__ProductCategory
+    description: >
+      Staging table for high-level product categories.
+    columns:
+      - name: ProductCategoryID
+        description: "Primary key for product category."
+        tests:
+          - unique
+          - not_null
+      - name: Name
+        description: "Category name."
+  - name: stg_adventure_works__ProductSubcategory
+    description: >
+      Staging table for product subcategories, linked to product categories.
+    columns:
+      - name: ProductSubcategoryID
+        description: "Primary key for the product subcategory."
+        tests:
+          - unique
+          - not_null
+      - name: ProductCategoryID
+        description: "Foreign key to product category."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_adventure_works__ProductCategory')
+              field: ProductCategoryID
+      - name: Name
+        description: "Subcategory name."
+
+
+
+  - name: stg_adventure_works__ProductVendor
+    description: >
+      Staging table for vendor-related product purchasing information. 
+      Each record represents a vendor's pricing and ordering configuration for a product.
+    columns:
+      - name: ProductID
+        description: "Primary key"
+        tests:
+          - not_null
+        relationships:
+          - to: ref('stg_adventure_works__Product')
+            field: ProductID
+      - name: BusinessEntityID
+        description: "Primary key. Foreign key to stg_adventure_works__Vendor.BusinessEntityID."
+        data_tests:
+          - not_null
+        relationships:
+          - to: ref('stg_adventure_works__Vendor')
+            field: BusinessEntityID
+      - name: AverageLeadTime
+        description: "Average number of days between placing an order and receiving the product."
+      - name: StandardPrice
+        description: "The vendor's usual selling price."
+        tests:
+          - not_null
+          - not_negative
+      - name: LastReceiptCost
+        description: "The selling price when the product was last purchased."
+      - name: LastReceiptDate
+        description: "Date the product was last received from the vendor."
+      - name: MinOrderQty
+        description: "The minimum quantity that should be ordered."
+      - name: MaxOrderQty
+        description: "The maximum quantity that should be ordered."
+      - name: OnOrderQty
+        description: "The quantity currently on order."
+      - name: UnitMeasureCode
+        description: "The product's unit of measure (e.g., EA, CS, CTN)."
+
+
+
+  - name: stg_adventure_works__SalesOrderDetail
+    description: >
+      Staging table representing individual products sold as part of sales orders. 
+      Each record details the product, pricing, and discount per order line item.
+    columns:
+      - name: SalesOrderID
+        description: "Foreign key to SalesOrderHeader.SalesOrderID."
+        data_tests:
+          - not_null
+        relationships:
+          - to: ref('stg_adventure_works__SalesOrderHeader')
+            field: SalesOrderID
+      - name: SalesOrderDetailID
+        description: "Primary key for the SalesOrderDetail table. Unique per product sold."
+        data_tests:
+          - unique
+          - not_null
+      - name: ProductID
+        description: "Foreign key to Product.ProductID."
+        data_tests:
+          - not_null
+        relationships:
+          - to: ref('stg_adventure_works__Product')
+            field: ProductID
+      - name: SpecialOfferID
+        description: >
+          "Foreign key to SpecialOffer.SpecialOfferID."
+        data_tests:
+          - not_null
+        relationships:
+          - to: ref('stg_adventure_works__SpecialOffer')
+            field: SpecialOfferID
+      - name: UnitPrice
+        description: >
+          "Selling price of a single product, rounded to two decimal places."
+        data_tests:
+          - not_negative
+      - name: UnitPriceDiscount
+        description: >
+          "Discount amount applied to each product unit."
+      - name: LineTotal
+        description: >
+          Total line cost: UnitPrice * (1 - UnitPriceDiscount) * OrderQty.
+          Rounded to two decimal places.
+        data_tests:
+          - not_null
+      - name: OrderQty
+        description: >
+          "Quantity of the product ordered."
+        data_tests:
+          - not_negative
+
+  - name: stg_adventure_works__SalesOrderHeader
+    description: >
+      Staging model that transforms and prepares the SalesOrderHeader source data for analytics.
+      Applies formatting to dates and monetary values using custom macros. 
+      Includes only relevant fields and enforces data integrity with tests and relationships.
+    columns:
+      - name: SalesOrderID
+        description: >
+          Primary key of the sales order.
+        data_tests:
+          - unique
+          - not_null
+      - name: OrderDate
+        description: >
+          Date the order was created.
+        data_tests:
+          - not_null
+      - name: DueDate
+        description: >
+          Date the order is due to the customer.
+        data_tests:
+          - not_null
+      - name: ShipDate
+        description: Date the order was shipped.
+        data_tests:
+          - not_null  
+      - name: Status
+        description: >
+          Order status. 
+          1 = In process; 2 = Approved; 3 = Backordered; 4 = Rejected; 5 = Shipped; 6 = Cancelled.
+        data_tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6]
+      - name: OnlineOrderFlag
+        description: >
+          Indicates whether the order was placed online by the customer (1) or by a salesperson (0).
+        data_tests:
+          - not_null
+      - name: SalesOrderNumber
+        description: >
+          Computed unique sales order number (e.g., SO43659).
+        data_tests:
+          - not_null
+      - name: CustomerID
+        description: >
+          Foreign key to Customer.BusinessEntityID.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_adventure_works__Customer')
+              field: CustomerID
+      - name: TerritoryID
+        description: >
+          Foreign key to SalesTerritory.SalesTerritoryID.
+      - name: BillToAddressID
+        description: >
+          Billing address ID (foreign key to Address).
+        data_tests:
+          - relationships:
+              to: ref('stg_adventure_works__Address')
+              field: AddressID
+      - name: ShipToAddressID
+        description: >
+          Shipping address ID (foreign key to Address).
+        data_tests:
+          - relationships:
+              to: ref('stg_adventure_works__Address')
+              field: AddressID
+      - name: ShipMethodID
+        description: >
+          Foreign key to ShipMethod.ShipMethodID.
+        data_tests:
+          - relationships:
+              to: ref('stg_adventure_works__ShipMethod')
+              field: ShipMethodID
+      - name: CurrencyRateID
+        description: >
+          Optional foreign key to CurrencyRate.CurrencyRateID.
+      - name: SubTotal
+        description: >
+          Sales subtotal amount, rounded to two decimal places.
+        data_tests:
+          - not_null
+          - not_negative
+      - name: TaxAmt
+        description: >
+          Tax charged on the order, rounded to two decimal places.
+        data_tests:
+          - not_null
+      - name: Freight
+        description: >
+          Freight cost, rounded to two decimal places.
+        data_tests:
+          - not_null
+      - name: TotalDue
+        description: >
+          Total amount due, computed as SubTotal + TaxAmt + Freight.
+        data_tests:
+          - not_null
+          - not_negative
+          - total_due_check
+  - name: stg_adventure_works__SalesPerson
+    description: >
+      Staging model that transforms and prepares the SalesPerson source data for analytics.
+      Applies renaming to the columns and prepares them for further analysis.
+    columns:
+      - name: BusinessEntityID
+        description: >
+          Foreign key to stg_adventure_works__Employee.BusinessEntityID, representing the sales representative.
+        data_tests:
+          - unique
+          - not_null
+      - name: TerritoryID
+        description: >
+          Foreign key to stg_adventure_works__SalesTerritory.SalesTerritoryID, indicating the current sales territory.
+
+  - name: stg_adventure_works__SalesTerritory
+    description: >
+      Staging model that transforms and prepares the SalesTerritory source data for analytics.
+      Renames columns and prepares them for further analysis.
+    columns:
+      - name: TerritoryID
+        description: >
+          Primary key for SalesTerritory records. Identity / Auto increment column.
+        data_tests:
+          - unique
+          - not_null
+      - name: TerritoryName
+        description: >
+         Description of the sales territory.
+      - name: CountryRegionCode
+        description: >
+         ISO standard country or region code. Foreign key to stg_adventure_works__CountryRegion.CountryRegionCode.
+        data_tests:
+          - not_null
+      - name: TerritoryGroup
+        description: >
+         Geographic area to which the sales territory belongs.
+  - name: stg_adventure_works__SalesTerritoryHistory
+    description: >
+      Staging model that transforms and prepares the SalesTerritoryHistory source data for analytics.
+    columns:
+      - name: BusinessEntityID
+        description: Foreign key to the employee who is assigned to the sales territory.
+        data_tests:
+          - not_null
+      - name: TerritoryID
+        description: >
+          Foreign key to the SalesTerritory table, linking the record to a specific sales territory.
+      - name: StartDate
+        description: >
+          The start date when the employee was assigned to the sales territory.
+      - name: EndDate
+        description: >
+          The end date when the employee was removed from the sales territory. If null, assumes a default value of '2044/12/31'.
+        data_tests:
+          - not_null
+
+  - name: stg_purchasing_adventure_works__ShipMethod
+    description: >
+      Staging model that transforms and prepares the ShipMethod source data for analytics.
+      Renames columns and formats monetary values to ensure consistency in analysis.
+    columns:
+      - name: ShipMethodID
+        description: >
+          Primary key for the shipping method record.
+        data_tests:
+          - unique
+          - not_null
+      - name: Name
+        description: >
+          Name of the shipping method or company.
+        data_tests:
+          - not_null
+      - name: ShipBase
+        description: >
+          Minimum shipping charge for the shipping method, rounded to two decimal places.
+        data_tests:
+          - not_null
+          - not_negative
+      - name: ShipRate
+        description: >
+          Shipping charge per pound for the shipping method, rounded to two decimal places.
+        data_tests:
+          - not_null
+          - not_negative
+
+
+  - name: stg_sales_adventure_works__SpecialOffer
+    description: >
+      Staging model that transforms and prepares the SpecialOffer source data for analytics.
+      Renames columns and formats date values to ensure consistency and readability.
+    columns:
+      - name: SpecialOfferID
+        description: >
+          Primary key for the special offer record.
+        data_tests:
+          - unique
+          - not_null
+      - name: Description
+        description: >
+          Description of the special offer or discount.
+      - name: DiscountPct
+        description: >
+          The percentage discount for the special offer, expressed as a decimal.
+      - name: Type
+        description: >
+          Type of the special offer (e.g., Volume Discount, Seasonal Discount).
+      - name: Category
+        description: >
+          The group the discount applies to, such as Reseller or Customer.
+      - name: StartDate
+        description: >
+          Start date of the special offer.
+      - name: EndDate
+        description: >
+          End date of the special offer.
+
+  - name: stg_person_adventure_works__StateProvince
+    description: >
+      Staging model that transforms and prepares the StateProvince source data for analytics.
+      Renames columns and formats date values to ensure consistency and readability.
+    columns:
+      - name: StateProvinceID
+        description: Primary key for the state or province record.
+        data_tests:
+          - unique
+          - not_null
+      - name: StateProvinceCode
+        description: ISO standard state or province code.
+        data_tests:
+          - not_null
+      - name: CountryRegionCode
+        description: >
+          ISO standard country or region code, foreign key to the stg_person_adventure_works__CountryRegion table.
+      - name: IsOnlyStateProvinceFlag
+        description: >
+          Flag indicating if only the state or province code exists (0 = exists, 1 = unavailable).
+        data_tests:
+          - accepted_values:
+              values: [0,1]
+      - name: Name
+        description: Name of the state or province.
+      - name: TerritoryID
+        description: >
+          Foreign key to the stg_person_adventure_works__SalesTerritory table identifying the territory of the state or province.
+      - name: ModifiedDate
+        description: >
+          The date and time the state or province record was last updated.
+  - name: stg_sales_adventure_works__Store
+    description: >
+      Staging model that prepares and transforms the Store source data. This model renames columns
+      and structures the data for further analytics on store information.
+    columns:
+      - name: StoreID
+        description: Primary key for the store record, mapped from BusinessEntityID.
+        data_tests:
+          - unique
+          - not_null
+      - name: Name
+        description: The name of the store.
+        data_tests:
+          - not_null
+      - name: SalesPersonID
+        description: Foreign key to the stg_sales_adventure_works__SalesPerson table, identifying the salesperson assigned to the store.
+        data_tests:
+          - not_null
+  - name: stg_purchasing_adventure_works__Vendor
+    description: >
+      Staging model that prepares and transforms the Vendor source data. This model renames columns
+      and structures the data for further analytics on vendor information related to purchasing.
+    columns:
+      - name: BusinessEntityID
+        description: It serves as the primary identifier for vendors.
+        data_tests:
+          - not_null
+      - name: AccountNumber
+        description: Vendor account (identification) number.
+      - name: Name
+        description: Name of the vendor company.
+      - name: CreditRating
+        description: >
+          A rating for the vendor based on its reliability:
+          1 = Superior,
+          2 = Excellent,
+          3 = Above average,
+          4 = Average,
+          5 = Below average.
+        data_tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+          - not_null
+      - name: PreferredVendorStatus
+        description: >
+          Indicates whether this vendor is preferred over others supplying the same product:
+          0 = Do not use if another vendor is available,
+          1 = Preferred over other vendors supplying the same product.
+        data_tests:
+          - accepted_values:
+              values: [0, 1]
+          - not_null
+      - name: ActiveFlag
+        description: >
+          Indicates whether the vendor is actively used:
+          0 = Vendor no longer used,
+          1 = Vendor is actively used.
+        data_tests:
+          - accepted_values:
+              values: [0, 1]
+          - not_null
+      - name: PurchasingWebServiceURL
+        description: URL for accessing the vendor’s purchasing web services.
+      - name: ModifiedDate
+        description: Date and time when the vendor record was last updated.
+
+
+  - name: stg_sales_aw__vStoreWithAddresses
+    description: >
+      Staging model that prepares and transforms the vStoreWithAddresses source data. This model renames columns
+      and structures the data for further analytics on store information related to Adventure Works Cycles products.
+    columns:
+      - name: BusinessEntityID
+        description: Unique identifier for the business entity. This is the primary key for each store.
+        data_tests:
+          - not_null
+      - name: StoreName
+        description: Name of the store.
+        data_tests:
+          - not_null
+      - name: AddressLine1
+        description: Primary street address for the store.
+      - name: AddressLine2
+        description: Secondary street address for the store (if applicable).
+      - name: City
+        description: City where the store is located.
+      - name: PostalCode
+        description: Postal code for the store location.
+      - name: CountryRegionName
+        description: Country or region where the store is located.
+  
+  - name: stg_sales_aw__vStoreWithContacts
+    description: >
+      Staging model that prepares and transforms the store and store contact information.
+      This model renames and structures columns from the vStoreWithContacts source for further analysis.
+    columns:
+      - name: BusinessEntityID
+        description: It represents the store's unique identifier.
+        data_tests:
+          - not_null
+      - name: Name
+        description: The name of the store.
+      - name: ContactType
+        description: Specifies the role of the contact person in the store (e.g., Purchasing Manager, Purchasing Agent).
+      - name: Title
+        description: The formal title of the contact person (e.g., Mr., Ms., Dr.).
+      - name: FirstName
+        description: First name of the contact person.
+        data_tests:
+          - not_null
+      - name: MiddleName
+        description: Middle name of the contact person (optional).
+      - name: LastName
+        description: Last name of the contact person.
+      - name: Suffix
+        description: Suffix of the contact person's name (e.g., Jr., Sr.).
+      - name: PhoneNumber
+        description: The contact phone number for the store.
+        data_tests:
+          - not_null
+      - name: PhoneNumberType
+        description: The type of phone number
+      - name: EmailAddress
+        description: The email address of the contact person.
+        data_tests:
+          - not_null
+          - unique
+      - name: EmailPromotion
+        description: Indicates whether the store is opted into email promotions (1 = Yes, 0 = No).
+        data_tests:
+          - accepted_values:
+              values: [0, 1]
+          - not_null
+
+  
+      
+
+

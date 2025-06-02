@@ -1,0 +1,52 @@
+version: 2
+
+sources:
+  - name: sales_aw 
+    database: AdventureWorks2017
+    schema: Sales
+    tables:
+      - name: SalesOrderDetail
+      - name: SalesOrderHeader
+      - name: Customer
+      - name: Store
+      - name: SalesPerson
+      - name: SalesTerritory
+      - name: SalesTerritoryHistory
+      - name: vStoreWithAddresses
+      - name: vStoreWithContacts
+      - name: SpecialOffer
+  - name: person_aw  
+    database: AdventureWorks2017
+    schema: Person
+    tables:
+     - name: Address
+     - name: StateProvince
+     - name: EmailAddress
+     - name: Person
+     - name: CountryRegion
+  - name: prod_aw
+    database: AdventureWorks2017
+    schema: Production
+    tables:
+     - name: Product
+     - name: ProductCategory
+     - name: ProductSubcategory
+  - name: hr_aw
+    database: AdventureWorks2017
+    schema: HumanResources
+    tables:
+     - name: Employee
+  - name: purchasing_aw
+    database: AdventureWorks2017
+    schema: Purchasing
+    tables:
+    - name: Vendor
+    - name: ProductVendor
+    - name: ShipMethod
+
+  - name: dbo
+    database: AdventureWorks2017
+    schema: dbo
+    tables:
+    - name: AW_QUOTA
+

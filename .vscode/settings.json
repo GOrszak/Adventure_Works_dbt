@@ -6,14 +6,17 @@
     },
 
       "files.associations": {
-    "**/jaffle_shop/**/*.sql": "jinja-sql",
+    "**/aw_project/**/*.sql": "jinja-sql",
     "**/target/**": "",
     "**/<aw_project>/**/*.yaml": "jinja-yaml",
     "**/<aw_project>/**/*.yml": "jinja-yaml",
-    "**/<aw_project>/**/docs/**/*.md": "jinja-md"
+    "**/<aw_project>/**/docs/**/*.md": "jinja-md",
+    "*.dat": "csv (pipe)",
+    "*.csv": "csv (semicolon)"
   },
   "editor.quickSuggestions": {
     "strings": true
-  }
-  
+  },
+  "dbt.perspectiveTheme": "Vintage"
+
 }
